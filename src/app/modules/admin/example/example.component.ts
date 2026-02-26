@@ -122,7 +122,12 @@ export class ExampleComponent implements OnInit {
 
   tooltipRelacion: ApexTooltip = {
     shared: true, intersect: false,
-    y: { formatter: (val: number) => `${val.toFixed(2)} KWH/t` },
+    y: {
+      formatter: (val: number) => {
+        const pesos = (val * PRECIO_KWH).toLocaleString('es-CO', { maximumFractionDigits: 0 });
+        return `${val.toLocaleString('es-CO')} KWH/t · $${pesos}`;
+      },
+    },
   };
 
   // ── Chart 3: Mayor consumo — Top 5 días históricos ───────────────────────
@@ -141,10 +146,8 @@ export class ExampleComponent implements OnInit {
     fontFamily: 'inherit',
   };
 
-  titleMayorConsumo: ApexTitleSubtitle = {
-    text: 'Días de mayor consumo energético [KWH]',
-    align: 'left',
-    style: { fontSize: '14px', fontWeight: '600' },
+  dataLabelsMayorConsumo: ApexDataLabels = {
+    enabled: false,
   };
 
   xAxisMayorConsumo: ApexXAxis = {
@@ -178,7 +181,7 @@ export class ExampleComponent implements OnInit {
   };
 
   plotOptionsMayorConsumo = {
-    bar: { borderRadius: 4, columnWidth: '50%' },
+    bar: { borderRadius: 4, columnWidth: '50%', horizontal:false },
   };
 
   // ── Chart 4: Consumo diario KWH — dinámico por año/mes ──────────────────
@@ -274,6 +277,16 @@ export class ExampleComponent implements OnInit {
     );
   });
 
+  // > 9% rojo | 5–9% amarillo | < 5% verde
+  colorsPctMensual = computed<string[]>(() => {
+    const series = this.seriesPctMensual() as number[];
+    return series.map(pct => {
+      if (pct > 9)  return '#ef4444'; // rojo
+      if (pct >= 5) return '#f59e0b'; // amarillo
+      return '#22c55e';               // verde
+    });
+  });
+
   chartPctMensual: ApexChart = {
     type: 'donut', height: 380, fontFamily: 'inherit',
   };
@@ -307,15 +320,27 @@ export class ExampleComponent implements OnInit {
         size: '60%',
         labels: {
           show: true,
+          name: {
+            show: true,
+            fontSize: '11px',
+            formatter: () => {
+              const data  = this._service.data();
+              const anio  = data.find(a => a.fecha === this.selectedAnio());
+              const total = anio?.energia_kwh ?? 0;
+              return `${total.toLocaleString('es-CO', { maximumFractionDigits: 0 })} KWH`;
+            },
+          },
           total: {
             show: true,
-            label: 'Total año',
+            label:"Total año",
+            color:"#000",
+            fontSize: '11px',
             formatter: () => {
-              const data = this._service.data();
-              const anio = data.find(a => a.fecha === this.selectedAnio());
+              const data  = this._service.data();
+              const anio  = data.find(a => a.fecha === this.selectedAnio());
               const total = anio?.energia_kwh ?? 0;
               const pesos = (total * PRECIO_KWH).toLocaleString('es-CO', { maximumFractionDigits: 0 });
-              return `${total.toLocaleString('es-CO', { maximumFractionDigits: 0 })} KWH · $${pesos}`;
+              return `$${pesos}`;
             },
           },
         },
