@@ -1,9 +1,23 @@
 <div class="flex min-w-0 flex-auto flex-col">
     <!-- Main -->
     <div class="flex-auto p-6 sm:p-10">
+        <!-- Botón exportar -->
+        <div class="flex justify-end px-4 pt-4">
+            <button
+                type="button"
+                (click)="exportarPDF()"
+                class="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+                Exportar PDF
+            </button>
+        </div>
         <!-- CONTENT GOES HERE -->
-        <div class="w-full flex flex-col gap-8 p-4">
-
+        <div id="dashboard-content"  class="w-full flex flex-col gap-8 p-4">
+            <!-- Título principal -->
+            <h1 class="text-center text-2xl font-semibold tracking-wide text-gray-800"
+                style="font-family: 'Titillium Web', sans-serif;">
+                Consumo de Energía
+            </h1>
             <!-- ── FILA 1: Tabla resumen anual (ancho completo) ────────────────────── -->
             <section class="flex flex-col sm:flex-row gap-4 items-center align-top">
                 <div class="flex-1 w-1/2 h-full">

@@ -104,7 +104,8 @@ const config = {
                 0: '0 0 auto',
             },
             fontFamily: {
-                sans: `"Inter var", ${defaultTheme.fontFamily.sans.join(',')}`,
+                //sans: `"Inter var", ${defaultTheme.fontFamily.sans.join(',')}`,
+                sans: ['Titillium Web', 'Inter var'],
                 mono: `"IBM Plex Mono", ${defaultTheme.fontFamily.mono.join(',')}`,
             },
             opacity: {

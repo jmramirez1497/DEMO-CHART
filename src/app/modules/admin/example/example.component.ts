@@ -3,6 +3,9 @@ import { MatTableModule } from '@angular/material/table';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, NgClass } from '@angular/common';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+
 import {
   ApexAxisChartSeries,
   ApexNonAxisChartSeries,
@@ -411,5 +414,37 @@ export class ExampleComponent implements OnInit {
     if (!this._service.data().length) {
       this._service.getResumen().subscribe();
     }
+  }
+
+  // Generate PDF
+  async exportarPDF(): Promise<void> {
+    const elemento = document.getElementById('dashboard-content');
+    if (!elemento) return;
+
+    const canvas = await html2canvas(elemento, {
+      scale: 2,          // mejor resolución
+      useCORS: true,
+      logging: false,
+    });
+
+    const imgData  = canvas.toDataURL('image/png');
+    const pdf      = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const pdfWidth  = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    // Si el contenido es más alto que una página, agrega páginas automáticamente
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    let position = 0;
+    let remaining = pdfHeight;
+
+    while (remaining > 0) {
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+      remaining -= pageHeight;
+      position  -= pageHeight;
+      if (remaining > 0) pdf.addPage();
+    }
+
+    pdf.save(`consumo-energia-${this.selectedAnio()}.pdf`);
   }
 }
